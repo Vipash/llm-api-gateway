@@ -1,5 +1,3 @@
-Markdown
-
 ```
 # Multi-Tenant LLM API Gateway
 
@@ -105,8 +103,6 @@ PowerShell
 
 ```
 
-
-
 # Clone and enter repo
 
 cd llm-gateway
@@ -132,6 +128,10 @@ uv run python -m scripts.seed
 
 ```
 
+```
+
+
+
 ### 3. Run Gateway
 
 PowerShell
@@ -146,7 +146,11 @@ uv run uvicorn app.main:app --reload
 - **Prometheus UI:** [http://localhost:9090](http://localhost:9090)
 - **Grafana Dashboard:** [http://localhost:3000](http://localhost:3000) (admin/admin)
 
+
+
 ## API Usage Examples
+
+
 
 ### 1. Buffered Request
 
@@ -164,6 +168,8 @@ Invoke-RestMethod -Uri "[http://localhost:8000/v1/chat/completions](http://local
 
 ```
 
+
+
 ### 2. Real-Time Streaming (SSE)
 
 PowerShell
@@ -176,6 +182,8 @@ curl.exe -N -X POST "[http://localhost:8000/v1/chat/completions](http://localhos
 
 ```
 
+
+
 ## Running Benchmarks
 
 PowerShell
@@ -187,6 +195,8 @@ PowerShell
 # Set MOCK_UPSTREAM=true in .env to isolate gateway performance from local GPU speed
 
 k6 run tests/load/benchmark.js
+
+```
 
 ```
 
