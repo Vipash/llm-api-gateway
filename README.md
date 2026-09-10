@@ -48,6 +48,7 @@ Designed for production AI infrastructure: features atomic sliding-window rate l
                                  └───────────────────────────────────┘  
 
 [ Scrape /metrics (5s) ] ──► [ Prometheus:9090 ] ──► [ Grafana:3000 ]
+![Grafana Dashboard](assets/grafana-dashboard.png)
 
 ```
 
@@ -63,9 +64,6 @@ Designed for production AI infrastructure: features atomic sliding-window rate l
 
 Load tested using **k6** simulating sustained concurrent traffic against a 50ms mock upstream:
 
-  
-
-
 
 |                                |                                              |                                           |                 |
 | ------------------------------ | -------------------------------------------- | ----------------------------------------- | --------------- |
@@ -78,8 +76,6 @@ Load tested using **k6** simulating sustained concurrent traffic against a 50ms 
 
 
 > **Key Architectural Takeaway:** Moving tenant validation from an inline database query to a read-through Redis cache dropped connection checkout contention by 50% and eliminated lock contention on daily rollup rows during high-concurrency bursts.
->
->
 
 ## Tech Stack
 
