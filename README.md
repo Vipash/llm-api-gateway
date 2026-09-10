@@ -8,39 +8,42 @@ Designed for production AI infrastructure: features atomic sliding-window rate l
 
 ## Architecture Overview
 
-[ Client / k6 Load Generator ] │ Bearer Token │ HTTP POST /v1/chat/completions
-
-(stream: true|false) ▼
-
-┌──────────────────────────────────────────────────────────┐
-
-│ FastAPI Gateway │ └──────────────┬────────────────────────────┬──────────────┘
-
+[ Client / k6 Load Generator ]  
+│  
+Bearer Token │ HTTP POST /v1/chat/completions (stream: true|false)  
+▼  
+┌──────────────────────────────────────────────────────────┐  
+│ FastAPI Gateway │  
+└──────────────┬────────────────────────────┬──────────────┘  
 │ │
 
-1.  Auth Check │ (Read-Through Cache) │ 2. Rate Limiting (Atomic Lua) ▼ ▼
+1. Auth Check │ (Read-Through Cache) │ 2. Rate Limiting (Atomic Lua)
 
-    ┌─────────────────┐ ┌─────────────────┐ │ Redis │ │ Redis
-
-    (ZSET) │ │ cache:auth:* │ │ rate_limit:* │ └────────┬────────┘
-
-    └────────┬────────┘ │ Miss │ Allowed: Inject headers ▼ │ Exceeded: 429 Too
-
-    Many Requests ┌─────────────────┐ ▼ │ PostgreSQL │
-
-    ┌───────────────────────────────────┐ │ (api_keys) │ │ Upstream Client
-
-    (Ollama / Mock) │ └─────────────────┘ │ • Buffered JSON OR │ │ • SSE
-
-    Real-Time Stream │ └────────────────┬──────────────────┘ │ ▼
-
-    ┌───────────────────────────────────┐ │
-
-    FastAPI BackgroundTasks │ └────────────────┬──────────────────┘ │
-
-    Non-blocking async write ▼ ┌───────────────────┐ │ PostgreSQL │ │ •
-
-    request_logs │ │ • daily_usage │ └───────────────────┘
+▼ ▼  
+┌─────────────────┐ ┌─────────────────┐  
+│ Redis │ │ Redis (ZSET) │  
+│ cache:auth:* │ │ rate_limit:* │  
+└────────┬────────┘ └────────┬────────┘  
+│ Miss │ Allowed: Inject headers  
+▼ │ Exceeded: 429 Too Many Requests  
+┌─────────────────┐ ▼  
+│ PostgreSQL │ ┌───────────────────────────────────┐  
+│ (api_keys) │ │ Upstream Client (Ollama / Mock) │  
+└─────────────────┘ │ • Buffered JSON OR │  
+│ • SSE Real-Time Stream │  
+└────────────────┬──────────────────┘  
+│  
+▼  
+┌───────────────────────────────────┐  
+│ FastAPI BackgroundTasks │  
+└────────────────┬──────────────────┘  
+│ Non-blocking async write  
+▼  
+┌───────────────────┐  
+│ PostgreSQL                              │  
+│ • request_logs                          |  
+│ • daily_usage                           │  
+└───────────────────┘
 
 [ Scrape /metrics (5s) ] ──► [ Prometheus:9090 ] ──► [ Grafana:3000 ]
 
@@ -49,13 +52,9 @@ Designed for production AI infrastructure: features atomic sliding-window rate l
 ## Key Engineering Features
 
 - **Multi-Tenant Auth & Read-Through Caching:** API keys are hashed with SHA-256 (raw keys are never stored). Validated tenants are cached in Redis with a 300s TTL, eliminating redundant database connection checkout.
-
 - **Atomic Sliding-Window Rate Limiter:** Built using Redis Sorted Sets `ZSET`) and evaluated via a custom **Lua script** `EVAL`) to guarantee atomicity and prevent check-then-act race conditions across concurrent workers. Returns `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `Retry-After` headers.
-
 - **Dual Execution Engine (Buffered & SSE Streaming):** Supports standard OpenAI-compatible requests `POST /v1/chat/completions`) with real-time token streaming via Server-Sent Events `text/event-stream`), measuring Time-To-First-Token (TTFT).
-
 - **Non-Blocking Telemetry:** Request latency, prompt/completion tokens, and daily aggregates are offloaded to PostgreSQL using FastAPI `BackgroundTasks`, isolating analytical persistence from the client latency path.
-
 - **Full Observability Stack:** Custom Prometheus metrics `llm_gateway_requests_total`, `llm_gateway_tokens_total`, `llm_gateway_request_duration_seconds`) scraped every 5s and visualized in real-time Grafana dashboards.
 
 ---
@@ -85,15 +84,10 @@ Load tested using **k6** simulating sustained concurrent traffic against a 50ms 
 ## Tech Stack
 
 - **Application:** Python 3.12, FastAPI (async), Uvicorn, Pydantic Settings
-
 - **Package Management:** `uv`
-
 - **Database & Migrations:** PostgreSQL 16, SQLAlchemy 2.0 (asyncpg), Alembic
-
 - **Caching & Rate Limiting:** Redis 7 `redis-py` async + Lua scripting)
-
 - **Observability:** Prometheus, Grafana, `prometheus_client`
-
 - **Benchmarking:** k6
 
 ---
@@ -103,9 +97,7 @@ Load tested using **k6** simulating sustained concurrent traffic against a 50ms 
 ### 1. Prerequisites
 
 - [uv]([https://docs.astral.sh/uv/](https://docs.astral.sh/uv/))
-
 - [Docker Desktop]([https://www.docker.com/](https://www.docker.com/))
-
 - (Optional) [Ollama]([https://ollama.com/](https://ollama.com/)) with `qwen2.5-coder:1.5b` installed
 
 ### 2. Environment & Infrastructure Setup
@@ -219,4 +211,6 @@ git push origin main
 At this point, your project is cleanly structured, documented, benchmarked, and
 
 ready to share with hiring managers or include on your resume.
+
+```
 
