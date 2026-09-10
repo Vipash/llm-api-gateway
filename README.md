@@ -66,9 +66,8 @@ Designed for production AI infrastructure: features atomic sliding-window rate l
 Load tested using **k6** simulating sustained concurrent traffic against a 50ms mock upstream:
 
 
-|                                |                                              |                                           |                 |
+| Metric                         | **Before Optimization (DB Auth Bottleneck)** | **After Optimization (Redis Auth Cache)** | Improvement     |
 | ------------------------------ | -------------------------------------------- | ----------------------------------------- | --------------- |
-| **Metric**                     | **Before Optimization (DB Auth Bottleneck)** | **After Optimization (Redis Auth Cache)** | **Improvement** |
 | **Throughput (RPS)**           | 11.7 req/s                                   | **70.0 req/s**                            | **6x Increase** |
 | **Median Latency (**`med`**)** | 2,280 ms                                     | **129 ms**                                | **17x Faster**  |
 | **P90 Latency**                | 5,990 ms                                     | **248 ms**                                | **24x Faster**  |
@@ -79,7 +78,7 @@ Load tested using **k6** simulating sustained concurrent traffic against a 50ms 
 
 > **Key Architectural Takeaway:** Moving tenant validation from an inline database query to a read-through Redis cache dropped connection checkout contention by 50% and eliminated lock contention on daily rollup rows during high-concurrency bursts.
 
-## Tech Stack
+## **Tech Stack**
 
 - **Application:** Python 3.12, FastAPI (async), Uvicorn, Pydantic Settings
 - **Package Management:** `uv`
@@ -88,15 +87,15 @@ Load tested using **k6** simulating sustained concurrent traffic against a 50ms 
 - **Observability:** Prometheus, Grafana, `prometheus_client`
 - **Benchmarking:** k6
 
-## Quickstart (Local Run)
+## **Quickstart (Local Run)**
 
-### 1. Prerequisites
+### **1. Prerequisites**
 
-- [uv](https://docs.astral.sh/uv/)
-- [Docker Desktop](https://www.docker.com/)
-- (Optional) [Ollama](https://ollama.com/) with `qwen2.5-coder:1.5b` installed
+- ++[uv](https://docs.astral.sh/uv/)++
+- ++[Docker Desktop](https://www.docker.com/)++
+- (Optional) ++[Ollama](https://ollama.com/)++ with `qwen2.5-coder:1.5b` installed
 
-### 2. Environment & Infrastructure Setup
+### **2. Environment & Infrastructure Setup**
 
 PowerShell
 
@@ -119,9 +118,10 @@ uv run alembic upgrade head
 uv run python -m scripts.seed
 # (Save the printed sk_live_... key!)
 
+
 ```
 
-### 3. Run Gateway
+### **3. Run Gateway**
 
 PowerShell
 
@@ -129,15 +129,16 @@ PowerShell
 
 uv run uvicorn app.main:app --reload
 
+
 ```
 
-- **Interactive API Docs (Swagger UI):** [http://localhost:8000/docs](http://localhost:8000/docs)
-- **Prometheus UI:** [http://localhost:9090](http://localhost:9090)
-- **Grafana Dashboard:** [http://localhost:3000](http://localhost:3000) (admin/admin)
+- **Interactive API Docs (Swagger UI):** ++[http://localhost:8000/docs](http://localhost:8000/docs)++
+- **Prometheus UI:** ++[http://localhost:9090](http://localhost:9090)++
+- **Grafana Dashboard:** ++[http://localhost:3000](http://localhost:3000)++ (admin/admin)
 
-## API Usage Examples
+## **API Usage Examples**
 
-### 1. Buffered Request
+### **1. Buffered Request**
 
 PowerShell
 
@@ -151,9 +152,10 @@ $body = '{"model":"qwen2.5-coder:1.5b","messages":[{"role":"user","content":"pin
 
 Invoke-RestMethod -Uri "[http://localhost:8000/v1/chat/completions](http://localhost:8000/v1/chat/completions)" -Method Post -Headers $headers -Body $body
 
+
 ```
 
-### 2. Real-Time Streaming (SSE)
+### **2. Real-Time Streaming (SSE)**
 
 PowerShell
 
@@ -163,9 +165,10 @@ curl.exe -N -X POST "[http://localhost:8000/v1/chat/completions](http://localhos
   -H "Content-Type: application/json" `
   -d '{"model":"qwen2.5-coder:1.5b","messages":[{"role":"user","content":"Count 1 to 5"}],"stream":true}'
 
+
 ```
 
-## Running Benchmarks
+## **Running Benchmarks**
 
 PowerShell
 
@@ -176,3 +179,4 @@ k6 run tests/load/benchmark.js
 
 ```
 
+  
