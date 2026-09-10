@@ -50,6 +50,7 @@ Engineered with systems-first principles: features atomic sliding-window rate li
 
 ### Real-Time Observability Dashboard
 
+![Image](assets/grafana-dashboard.png)
 ---
 
 ## Key Engineering Features
