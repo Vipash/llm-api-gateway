@@ -74,6 +74,7 @@ Load tested using **k6** simulating sustained concurrent traffic against a 50ms 
 | **P90 Latency**                | 5,990 ms                                     | **248 ms**                                | **24x Faster**  |
 | **P95 Latency**                | 7,030 ms                                     | **302 ms**                                | **23x Faster**  |
 | **Success Rate**               | 99.15% (socket dropouts)                     | **100.00% (0 errors / 2,106 reqs)**       | **Zero Drops**  |
+| **Success Rate**               | 99.15% (socket dropouts)                     | **100.00% (0 errors / 2,106 reqs)**       | **Zero Drops**  |
 
 
 > **Key Architectural Takeaway:** Moving tenant validation from an inline database query to a read-through Redis cache dropped connection checkout contention by 50% and eliminated lock contention on daily rollup rows during high-concurrency bursts.
@@ -101,36 +102,24 @@ PowerShell
 
 ```
 
-```
-
 # Clone and enter repo
-
 cd llm-gateway
 
 # Set up environment variables
-
 copy .env.example .env
 
 # Start Postgres, Redis, Prometheus, and Grafana
-
 docker compose up -d
 
 # Sync dependencies and run DB migrations
-
 uv sync --group dev
 uv run alembic upgrade head
 
 # Seed test tenant and generate an API key
-
 uv run python -m scripts.seed
-
 # (Save the printed sk_live_... key!)
 
 ```
-
-```
-
-
 
 ### 3. Run Gateway
 
@@ -146,11 +135,7 @@ uv run uvicorn app.main:app --reload
 - **Prometheus UI:** [http://localhost:9090](http://localhost:9090)
 - **Grafana Dashboard:** [http://localhost:3000](http://localhost:3000) (admin/admin)
 
-
-
 ## API Usage Examples
-
-
 
 ### 1. Buffered Request
 
@@ -168,8 +153,6 @@ Invoke-RestMethod -Uri "[http://localhost:8000/v1/chat/completions](http://local
 
 ```
 
-
-
 ### 2. Real-Time Streaming (SSE)
 
 PowerShell
@@ -182,23 +165,14 @@ curl.exe -N -X POST "[http://localhost:8000/v1/chat/completions](http://localhos
 
 ```
 
-
-
 ## Running Benchmarks
 
 PowerShell
 
 ```
 
-
-
 # Set MOCK_UPSTREAM=true in .env to isolate gateway performance from local GPU speed
-
 k6 run tests/load/benchmark.js
-
-```
-
-```
 
 ```
 
