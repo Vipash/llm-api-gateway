@@ -48,14 +48,17 @@ Designed for production AI infrastructure: features atomic sliding-window rate l
                                  └───────────────────────────────────┘  
 
 [ Scrape /metrics (5s) ] ──► [ Prometheus:9090 ] ──► [ Grafana:3000 ]
-![Grafana Dashboard](assets/grafana-dashboard.png)
 
 ```
 
+### Real-Time Observability Dashboard
+
+![Image](assets/grafana-dashboard.png)
+
 ## Key Engineering Features
 
-- **Multi-Tenant Auth & Read-Through Caching:** API keys are hashed with SHA-256 (raw keys are never stored). Validated tenants are cached in Redis with a 300s TTL, eliminating redundant database connection checkouts.
-- **Atomic Sliding-Window Rate Limiter:** Built using Redis Sorted Sets (`ZSET`) and evaluated via a custom **Lua script** (`EVAL`) to guarantee atomicity and prevent check-then-act race conditions across concurrent workers. Returns `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `Retry-After` headers.
+- **Multi-Tenant Auth & Read-Through Caching:** API keys are hashed with SHA-256 (raw keys are never stored in plaintext). Validated tenants are cached in Redis with a 300s TTL, eliminating redundant database connection checkouts.
+- **Atomic Sliding-Window Rate Limiter:** Built using Redis Sorted Sets (`ZSET`) and evaluated via a custom Lua script (`EVAL`) to guarantee atomicity and prevent check-then-act race conditions across concurrent workers. Returns `X-RateLimit-Limit`, `X-RateLimit-Remaining`, and `Retry-After` headers.
 - **Dual Execution Engine (Buffered & SSE Streaming):** Supports standard OpenAI-compatible requests (`POST /v1/chat/completions`) with real-time token streaming via Server-Sent Events (`text/event-stream`), measuring Time-To-First-Token (TTFT).
 - **Non-Blocking Telemetry:** Request latency, prompt/completion tokens, and daily aggregates are offloaded to PostgreSQL using FastAPI `BackgroundTasks`, isolating analytical persistence from the client latency path.
 - **Full Observability Stack:** Custom Prometheus metrics (`llm_gateway_requests_total`, `llm_gateway_tokens_total`, `llm_gateway_request_duration_seconds`) scraped every 5s and visualized in real-time Grafana dashboards.
@@ -99,21 +102,32 @@ Load tested using **k6** simulating sustained concurrent traffic against a 50ms 
 PowerShell
 
 ```
+
+```
+
+
+
 # Clone and enter repo
+
 cd llm-gateway
 
 # Set up environment variables
+
 copy .env.example .env
 
 # Start Postgres, Redis, Prometheus, and Grafana
+
 docker compose up -d
 
 # Sync dependencies and run DB migrations
+
 uv sync --group dev
 uv run alembic upgrade head
 
 # Seed test tenant and generate an API key
+
 uv run python -m scripts.seed
+
 # (Save the printed sk_live_... key!)
 
 ```
@@ -123,6 +137,7 @@ uv run python -m scripts.seed
 PowerShell
 
 ```
+
 uv run uvicorn app.main:app --reload
 
 ```
@@ -138,13 +153,14 @@ uv run uvicorn app.main:app --reload
 PowerShell
 
 ```
+
 $headers = @{
     "Authorization" = "Bearer sk_live_YOUR_KEY"
     "Content-Type" = "application/json"
 }
 $body = '{"model":"qwen2.5-coder:1.5b","messages":[{"role":"user","content":"ping"}]}'
 
-Invoke-RestMethod -Uri "http://localhost:8000/v1/chat/completions" -Method Post -Headers $headers -Body $body
+Invoke-RestMethod -Uri "[http://localhost:8000/v1/chat/completions](http://localhost:8000/v1/chat/completions)" -Method Post -Headers $headers -Body $body
 
 ```
 
@@ -153,8 +169,8 @@ Invoke-RestMethod -Uri "http://localhost:8000/v1/chat/completions" -Method Post 
 PowerShell
 
 ```
-curl.exe -N -X POST "http://localhost:8000/v1/chat/completions" `
-  -H "Authorization: Bearer sk_live_YOUR_KEY" `
+
+curl.exe -N -X POST "[http://localhost:8000/v1/chat/completions](http://localhost:8000/v1/chat/completions)"   `-H "Authorization: Bearer sk_live_YOUR_KEY"`
   -H "Content-Type: application/json" `
   -d '{"model":"qwen2.5-coder:1.5b","messages":[{"role":"user","content":"Count 1 to 5"}],"stream":true}'
 
@@ -165,7 +181,14 @@ curl.exe -N -X POST "http://localhost:8000/v1/chat/completions" `
 PowerShell
 
 ```
+
+
+
 # Set MOCK_UPSTREAM=true in .env to isolate gateway performance from local GPU speed
+
 k6 run tests/load/benchmark.js
+
+```
+
 ```
 
