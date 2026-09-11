@@ -1,6 +1,6 @@
 # Multi-Tenant LLM API Gateway
 
-![CI Status](https://github.com/Vipash/llm-gateway/actions/workflows/ci.yml/badge.svg)
+![CI Status](https://github.com/Vipash/llm-api-gateway/actions/workflows/ci.yml/badge.svg)
 
 A high-performance, observable API gateway built with FastAPI (async), PostgreSQL, and Redis that proxies, rate limits, and observes traffic to LLM backends (Ollama / OpenAI).
 
