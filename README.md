@@ -141,6 +141,15 @@ Benchmarks executed using **k6** against a simulated 50ms deterministic mock ups
 
 ---
 
+## Testing
+
+The project uses `pytest` with `httpx.AsyncClient` for async HTTP assertions and `fakeredis` for isolated, fast in-memory Redis unit testing without requiring active Docker containers.
+
+```powershell
+# Run unit and endpoint tests
+uv run pytest
+```
+
 ## Quickstart (Local Run)
 
 ### 1. Prerequisites
@@ -212,9 +221,5 @@ curl.exe -N -X POST "http://localhost:8000/v1/chat/completions" `
 ```powershell
 # Set MOCK_UPSTREAM=true in .env to isolate gateway performance from local GPU speed
 k6 run tests/load/benchmark.js
-
-```
-
-```
 
 ```
