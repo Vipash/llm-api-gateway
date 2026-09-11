@@ -1,5 +1,7 @@
 # Multi-Tenant LLM API Gateway
 
+![CI Status](https://github.com/your-username/llm-gateway/actions/workflows/ci.yml/badge.svg)
+
 A high-performance, observable API gateway built with FastAPI (async), PostgreSQL, and Redis that proxies, rate limits, and observes traffic to LLM backends (Ollama / OpenAI).
 
 Engineered with systems-first principles: features atomic sliding-window rate limiting via Redis Lua, read-through authentication caching, native Server-Sent Events (SSE) streaming, deferred asynchronous usage logging, and Prometheus/Grafana observability.
@@ -149,6 +151,14 @@ The project uses `pytest` with `httpx.AsyncClient` for async HTTP assertions and
 # Run unit and endpoint tests
 uv run pytest
 ```
+
+## Continuous Integration (CI)
+
+This repository uses **GitHub Actions** (`.github/workflows/ci.yml`) for automated continuous integration:
+* Spins up ephemeral **PostgreSQL 16** and **Redis 7** service containers in GitHub Actions runners.
+* Restores dependency caches using `astral-sh/setup-uv`.
+* Executes database migrations (`alembic upgrade head`).
+* Runs the full `pytest` suite against real service containers with `MOCK_UPSTREAM=true`.
 
 ## Quickstart (Local Run)
 
